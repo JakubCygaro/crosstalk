@@ -106,7 +106,7 @@ func serveConnection(conn net.Conn, broadcaster *Broadcaster){
 		for {
 			n, err := connRW.Read(buf);
 			if err != nil || err == io.EOF {
-				if err.Error() != "EOF" {
+				if err != io.EOF {
 					fmt.Printf("Error while recieving user message: %s", err);
 				}
 				connected = false;
