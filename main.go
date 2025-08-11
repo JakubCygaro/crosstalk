@@ -106,7 +106,9 @@ func serveConnection(conn net.Conn, broadcaster *Broadcaster){
 		for {
 			n, err := connRW.Read(buf);
 			if err != nil || err == io.EOF {
-				fmt.Println(err);
+				if err != io.EOF {
+					fmt.Println(err);
+				}
 				connected = false;
 				broadcaster.unsubscribe(conn.RemoteAddr().String())
 				return;
@@ -114,7 +116,6 @@ func serveConnection(conn net.Conn, broadcaster *Broadcaster){
 			mess := strings.TrimSpace(string(buf[:n]))
 			if ok := verifyMessage(&mess); !ok {
 				if _, err := connRW.WriteString("\033[31;1m~empty message\033[0m\r\n"); err != nil {
-					fmt.Println(err);
 					connected = false;
 					broadcaster.unsubscribe(conn.RemoteAddr().String())
 				}
