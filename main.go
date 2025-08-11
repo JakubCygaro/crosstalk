@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"math/rand"
 	"net"
 	"os"
@@ -104,7 +105,7 @@ func serveConnection(conn net.Conn, broadcaster *Broadcaster){
 	go func() {
 		for {
 			n, err := connRW.Read(buf);
-			if err != nil {
+			if err != nil || err == io.EOF {
 				fmt.Println(err);
 				connected = false;
 				broadcaster.unsubscribe(conn.RemoteAddr().String())
