@@ -106,8 +106,8 @@ func serveConnection(conn net.Conn, broadcaster *Broadcaster){
 		for {
 			n, err := connRW.Read(buf);
 			if err != nil || err == io.EOF {
-				if err != io.EOF {
-					fmt.Println(err);
+				if err.Error() != "EOF" {
+					fmt.Printf("Error while recieving user message: %s", err);
 				}
 				connected = false;
 				broadcaster.unsubscribe(conn.RemoteAddr().String())
