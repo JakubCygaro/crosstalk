@@ -115,12 +115,17 @@ func serveConnection(conn net.Conn, broadcaster *Broadcaster){
 			}
 			mess := strings.TrimSpace(string(buf[:n]))
 			if ok := verifyMessage(&mess); !ok {
-				if _, err := connRW.WriteString("\033[31;1m~empty message\033[0m\r\n"); err != nil {
+				if _, err := connRW.WriteString("\033[31;1m~invalid message\033[0m\r\n"); err != nil {
 					connected = false;
 					broadcaster.unsubscribe(conn.RemoteAddr().String())
 				}
 				connRW.Flush()
 			} else {
+				if _, err := connRW.WriteString("\033[2K\033[1A\033[2K\033[0m"); err != nil {
+					connected = false;
+					broadcaster.unsubscribe(conn.RemoteAddr().String())
+				}
+				connRW.Flush()
 				broadcast <- fmt.Sprintf("%s %s: %s\033[0m\r\n", genTimestamp(), username, mess);
 			}
 		}
@@ -167,6 +172,7 @@ func main() {
 	broadcaster := NewBroadcaster();
 	go broadcaster.run();
 	go echoMessages(&broadcaster, sock.Addr().String())
+	fmt.Printf("%s \033[38;2;10;240;50mCrosstalk server up and running on \033[0m[%s:%s]!\r\n", genTimestamp(), address, port);
 	for {
 		conn, err := sock.Accept()
 		if err != nil {
